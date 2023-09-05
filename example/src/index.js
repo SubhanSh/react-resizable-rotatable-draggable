@@ -39,9 +39,11 @@ class App extends PureComponent {
 
   handleRotateStart = () => console.log('RotateStart')
 
+  handleRemove = () => console.log('handle remove')
+
   render () {
     const { top, left, width, height, rotateAngle } = this.state
-    return <ResizableRect {...{
+    return (<ResizableRect {...{
       top,
       left,
       width,
@@ -50,7 +52,9 @@ class App extends PureComponent {
       // aspectRatio: false,
       minWidth: -Infinity,
       minHeight: -Infinity,
-      zoomable: 'n, w, s, e, nw, ne, se, sw',
+      // zoomable: 'n, w, s, e, nw, ne, se, sw',
+      zoomable: 'nw, ne, se, sw',
+      mytempvar: 'hello',
       // rotatable: true,
       onRotateStart: this.handleRotateStart,
       onRotate: this.handleRotate,
@@ -59,9 +63,10 @@ class App extends PureComponent {
       onResize: this.handleResize,
       // onResizeEnd: this.handleUp,
       // onDragStart: this.handleDragStart,
-      onDrag: this.handleDrag
+      onDrag: this.handleDrag,
       // onDragEnd: this.handleDragEnd,
-    }} />
+      onRemove: this.handleRemove
+    }} />)
   }
 }
 

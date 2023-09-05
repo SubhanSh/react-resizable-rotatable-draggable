@@ -6,52 +6,53 @@ export default styled.div`
 
   .square {
     position: absolute;
-    width: 7px;
-    height: 7px;
-    background: white;
+    width: 26px;
+    height: 26px;
+    padding: 4px;
+    background: #eb5648;
     border: 1px solid #eb5648;
-    border-radius: 1px;
+    border-radius: 50%;
   }
 
   .resizable-handler {
     position: absolute;
-    width: 14px;
-    height: 14px;
+    width: 26px;
+    height: 26px;
     cursor: pointer;
     z-index: 1;
 
     &.tl,
     &.t,
     &.tr {
-      top: -7px;
+      top: -12px;
     }
 
     &.tl,
     &.l,
     &.bl {
-      left: -7px;
+      left: -12px;
     }
 
     &.bl,
     &.b,
     &.br {
-      bottom: -7px;
+      bottom: -12px;
     }
 
     &.br,
     &.r,
     &.tr {
-      right: -7px;
+      right: -12px;
     }
 
     &.l,
     &.r {
-      margin-top: -7px;
+      margin-top: -12px;
     }
 
     &.t,
     &.b {
-      margin-left: -7px;
+      margin-left: -12px;
     }
   }
 
@@ -67,40 +68,43 @@ export default styled.div`
     align-items: center;
     cursor: pointer;
   }
+  .cursor-pointer {
+    cursor: pointer;
+  }
 
   .t,
   .tl,
   .tr {
-    top: -3px;
+    top: -12px;
   }
 
   .b,
   .bl,
   .br {
-    bottom: -3px;
+    bottom: -12px;
   }
 
   .r,
   .tr,
   .br {
-    right: -3px;
+    right: -12px;
   }
 
   .tl,
   .l,
   .bl {
-    left: -3px;
+    left: -12px;
   }
 
   .l,
   .r {
     top: 50%;
-    margin-top: -3px;
+    margin-top: -12px;
   }
 
   .t,
   .b {
     left: 50%;
-    margin-left: -3px;
+    margin-left: -12px;
   }
 `
