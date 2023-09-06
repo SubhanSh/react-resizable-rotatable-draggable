@@ -8,10 +8,11 @@ export default styled.div`
     position: absolute;
     width: 26px;
     height: 26px;
-    padding: 4px;
     background: #eb5648;
     border: 1px solid #eb5648;
     border-radius: 50%;
+    text-align: center;
+    line-height: 26px;
   }
 
   .resizable-handler {
