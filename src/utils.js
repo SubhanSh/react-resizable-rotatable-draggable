@@ -1,3 +1,17 @@
+export const deviceType = () => {
+  if (typeof window !== 'undefined' && typeof window.navigator !== 'undefined') {
+    const ua = navigator.userAgent;
+    if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+      return 'tablet'
+    }
+    else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+      return 'mobile'
+    }
+    return 'desktop'
+  }
+  return 'null'
+}
+
 export const getLength = (x, y) => Math.sqrt(x * x + y * y)
 
 export const getAngle = ({ x: x1, y: y1 }, { x: x2, y: y2 }) => {

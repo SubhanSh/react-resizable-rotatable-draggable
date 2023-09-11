@@ -1,7 +1,17 @@
 import PropTypes from 'prop-types'
 import React, { PureComponent } from 'react'
-import { getLength, getAngle, getCursor } from '../utils'
+import { getLength, getAngle, getCursor, deviceType } from '../utils'
 import StyledRect from './StyledRect'
+
+const isDeviceDesktop = deviceType() === 'desktop'
+
+const getMoveEventName = () => {
+  return isDeviceDesktop ? 'mousemove' : 'touchmove'
+}
+
+const getUpEventName = () => {
+  return isDeviceDesktop ? 'mouseup' : 'touchend'
+}
 
 const zoomableMap = {
   'n': 't',
@@ -36,13 +46,13 @@ export default class Rect extends PureComponent {
 
   // Drag
   startDrag = (e) => {
-    let { clientX: startX, clientY: startY } = e
+    let { clientX: startX, clientY: startY } = isDeviceDesktop ? e : e.changedTouches[0]
     this.props.onDragStart && this.props.onDragStart()
     this._isMouseDown = true
     const onMove = (e) => {
       if (!this._isMouseDown) return // patch: fix windows press win key during mouseup issue
       e.stopImmediatePropagation()
-      const { clientX, clientY } = e
+      const { clientX, clientY } = isDeviceDesktop ? e : e.changedTouches[0]
       const deltaX = clientX - startX
       const deltaY = clientY - startY
       this.props.onDrag(deltaX, deltaY)
@@ -50,20 +60,20 @@ export default class Rect extends PureComponent {
       startY = clientY
     }
     const onUp = () => {
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
+      document.removeEventListener(getMoveEventName(), onMove)
+      document.removeEventListener(getUpEventName(), onUp)
       if (!this._isMouseDown) return
       this._isMouseDown = false
       this.props.onDragEnd && this.props.onDragEnd()
     }
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
+    document.addEventListener(getMoveEventName(), onMove)
+    document.addEventListener(getUpEventName(), onUp)
   }
 
   // Rotate
   startRotate = (e) => {
-    if (e.button !== 0) return
-    const { clientX, clientY } = e
+    if (e.button !== 0 && isDeviceDesktop) return
+    const { clientX, clientY } = isDeviceDesktop ? e : e.changedTouches[0]
     const { styles: { transform: { rotateAngle: startAngle } } } = this.props
     const rect = this.$element.getBoundingClientRect()
     const center = {
@@ -79,7 +89,7 @@ export default class Rect extends PureComponent {
     const onMove = (e) => {
       if (!this._isMouseDown) return // patch: fix windows press win key during mouseup issue
       e.stopImmediatePropagation()
-      const { clientX, clientY } = e
+      const { clientX, clientY } = isDeviceDesktop ? e : e.changedTouches[0]
       const rotateVector = {
         x: clientX - center.x,
         y: clientY - center.y
@@ -88,22 +98,22 @@ export default class Rect extends PureComponent {
       this.props.onRotate(angle, startAngle)
     }
     const onUp = () => {
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
+      document.removeEventListener(getMoveEventName(), onMove)
+      document.removeEventListener(getUpEventName(), onUp)
       if (!this._isMouseDown) return
       this._isMouseDown = false
       this.props.onRotateEnd && this.props.onRotateEnd()
     }
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
+    document.addEventListener(getMoveEventName(), onMove)
+    document.addEventListener(getUpEventName(), onUp)
   }
 
   // Resize
   startResize = (e, cursor) => {
-    if (e.button !== 0) return
+    if (e.button !== 0 && isDeviceDesktop) return
     document.body.style.cursor = cursor
     const { styles: { position: { centerX, centerY }, size: { width, height }, transform: { rotateAngle } } } = this.props
-    const { clientX: startX, clientY: startY } = e
+    const { clientX: startX, clientY: startY } = isDeviceDesktop ? e : e.changedTouches[0]
     const rect = { width, height, centerX, centerY, rotateAngle }
     const type = e.target.getAttribute('class').split(' ')[ 0 ]
     this.props.onResizeStart && this.props.onResizeStart()
@@ -111,7 +121,7 @@ export default class Rect extends PureComponent {
     const onMove = (e) => {
       if (!this._isMouseDown) return // patch: fix windows press win key during mouseup issue
       e.stopImmediatePropagation()
-      const { clientX, clientY } = e
+      const { clientX, clientY } = isDeviceDesktop ? e : e.changedTouches[0]
       const deltaX = clientX - startX
       const deltaY = clientY - startY
       const alpha = Math.atan2(deltaY, deltaX)
@@ -122,14 +132,14 @@ export default class Rect extends PureComponent {
 
     const onUp = () => {
       document.body.style.cursor = 'auto'
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
+      document.removeEventListener(getMoveEventName(), onMove)
+      document.removeEventListener(getUpEventName(), onUp)
       if (!this._isMouseDown) return
       this._isMouseDown = false
       this.props.onResizeEnd && this.props.onResizeEnd()
     }
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
+    document.addEventListener(getMoveEventName(), onMove)
+    document.addEventListener(getUpEventName(), onUp)
   }
 
   handleRemove = () => {
@@ -137,19 +147,16 @@ export default class Rect extends PureComponent {
   }
 
   getHandlerAttrs = (d, cursor) => {
+    let attrs = {}
     if (['nw', 'se'].includes(d)) {
-      return {
-        onMouseDown: (e) => this.startResize(e, cursor)
-      }
+      attrs[isDeviceDesktop ? 'onMouseDown' : 'onTouchStart'] = (e) => this.startResize(e, cursor)
     } else if (d === 'sw') {
-      return {
-        onClick: () => this.handleRemove()
-      }
+      attrs['onClick'] = () => this.handleRemove()
     } else if (d === 'ne') {
-      return {
-        onMouseDown: this.startRotate
-      }
+      attrs[isDeviceDesktop ? 'onMouseDown' : 'onTouchStart'] = this.startRotate
     }
+
+    return attrs
   }
 
   getCornerIcon = (d) => {
@@ -192,7 +199,7 @@ export default class Rect extends PureComponent {
     return (
       <StyledRect
         ref={this.setElementRef}
-        onMouseDown={this.startDrag}
+        {...(isDeviceDesktop ? { onMouseDown: this.startDrag } : { onTouchStart: this.startDrag })}
         className="rect single-resizer"
         style={style}
       >
